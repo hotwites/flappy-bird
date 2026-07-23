@@ -1,0 +1,83 @@
+name: Test and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Allow deploying to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ─── Job 1: Run test suite ────────────────────────────────────────────────
+  test:
+    name: Run Tests (60 tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install test dependencies
+        run: npm ci
+        working-directory: tests
+
+      - name: Run test suite
+        run: npm test
+        working-directory: tests
+
+  # ─── Job 2: Deploy to GitHub Pages (only on main, after tests pass) ───────
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required game files
+        run: |
+          echo "=== Validating game files ==="
+          files=(index.html css/style.css src/bird.js src/pipes.js src/collision.js src/input.js src/renderer.js src/game.js)
+          for f in "${files[@]}"; do
+            if [ -f "$f" ]; then echo "  [OK] $f"
+            else echo "  [MISSING] $f"; exit 1
+            fi
+          done
+          grep -q "Content-Security-Policy" index.html && echo "  [OK] CSP tag present" || (echo "  [MISSING] CSP tag"; exit 1)
+          echo "=== All files validated ==="
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repo root (index.html + css/ + src/)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
