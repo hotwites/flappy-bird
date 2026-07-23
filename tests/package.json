@@ -1,0 +1,15 @@
+{
+  "name": "flappy-bird-tests",
+  "version": "1.0.0",
+  "description": "Property-based and example-based tests for Flappy Bird",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:verbose": "vitest run --reporter=verbose"
+  },
+  "devDependencies": {
+    "fast-check": "3.19.0",
+    "vitest": "1.6.0"
+  }
+}

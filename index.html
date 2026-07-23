@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Flappy Bird</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main>
+        <canvas id="gameCanvas" data-testid="game-canvas" width="400" height="600"></canvas>
+    </main>
+
+    <script src="src/bird.js"></script>
+    <script src="src/pipes.js"></script>
+    <script src="src/collision.js"></script>
+    <script src="src/input.js"></script>
+    <script src="src/renderer.js"></script>
+    <script src="src/game.js"></script>
+</body>
+</html>
